@@ -149,7 +149,7 @@ libraw.so.16:_ZN6LibRaw11nikon_e2100Ev
 libraw.so.16:_ZN6LibRaw11open_bufferEPvm
 libraw.so.16:_ZN6LibRaw11ph1_bithuffEiPt
 libraw.so.16:_ZN6LibRaw11ppm16_thumbEv
-libraw.so.16:_ZN6LibRaw11read_shortsEPti
+libraw.so.16:_ZN6LibRaw11read_shortsEPtj
 libraw.so.16:_ZN6LibRaw11strprogressE15LibRaw_progress
 libraw.so.16:_ZN6LibRaw12capabilitiesEv
 libraw.so.16:_ZN6LibRaw12cubic_splineEPKiS1_i
@@ -632,7 +632,7 @@ libraw_r.so.16:_ZN6LibRaw11nikon_e2100Ev
 libraw_r.so.16:_ZN6LibRaw11open_bufferEPvm
 libraw_r.so.16:_ZN6LibRaw11ph1_bithuffEiPt
 libraw_r.so.16:_ZN6LibRaw11ppm16_thumbEv
-libraw_r.so.16:_ZN6LibRaw11read_shortsEPti
+libraw_r.so.16:_ZN6LibRaw11read_shortsEPtj
 libraw_r.so.16:_ZN6LibRaw11strprogressE15LibRaw_progress
 libraw_r.so.16:_ZN6LibRaw12capabilitiesEv
 libraw_r.so.16:_ZN6LibRaw12cubic_splineEPKiS1_i
