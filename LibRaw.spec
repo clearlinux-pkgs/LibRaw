@@ -4,7 +4,7 @@
 #
 Name     : LibRaw
 Version  : 0.18.8
-Release  : 5
+Release  : 6
 URL      : https://www.libraw.org/data/LibRaw-0.18.8.tar.gz
 Source0  : https://www.libraw.org/data/LibRaw-0.18.8.tar.gz
 Summary  : Raw image decoder library (non-thread-safe)
@@ -61,13 +61,16 @@ lib components for the LibRaw package.
 pushd ..
 cp -a LibRaw-0.18.8 buildavx2
 popd
+pushd ..
+cp -a LibRaw-0.18.8 buildavx512
+popd
 
 %build
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C
-export SOURCE_DATE_EPOCH=1522111056
+export SOURCE_DATE_EPOCH=1522111428
 %configure --disable-static
 make
 
@@ -79,6 +82,14 @@ export LDFLAGS="$LDFLAGS -m64 -march=haswell"
 %configure --disable-static    --libdir=/usr/lib64/haswell --bindir=/usr/bin/haswell
 make
 popd
+unset PKG_CONFIG_PATH
+pushd ../buildavx512/
+export CFLAGS="$CFLAGS -m64 -march=skylake-avx512"
+export CXXFLAGS="$CXXFLAGS -m64 -march=skylake-avx512"
+export LDFLAGS="$LDFLAGS -m64 -march=skylake-avx512"
+%configure --disable-static    --libdir=/usr/lib64/haswell/avx512_1 --bindir=/usr/bin/haswell/avx512_1
+make
+popd
 %check
 export LANG=C
 export http_proxy=http://127.0.0.1:9/
@@ -87,15 +98,20 @@ export no_proxy=localhost,127.0.0.1,0.0.0.0
 make VERBOSE=1 V=1 check
 
 %install
-export SOURCE_DATE_EPOCH=1522111056
+export SOURCE_DATE_EPOCH=1522111428
 rm -rf %{buildroot}
 pushd ../buildavx2/
+%make_install
+popd
+pushd ../buildavx512/
 %make_install
 popd
 %make_install
 
 %files
 %defattr(-,root,root,-)
+/usr/lib64/haswell/avx512_1/pkgconfig/libraw.pc
+/usr/lib64/haswell/avx512_1/pkgconfig/libraw_r.pc
 
 %files bin
 %defattr(-,root,root,-)
@@ -104,6 +120,16 @@ popd
 /usr/bin/dcraw_half
 /usr/bin/half_mt
 /usr/bin/haswell/4channels
+/usr/bin/haswell/avx512_1/4channels
+/usr/bin/haswell/avx512_1/dcraw_emu
+/usr/bin/haswell/avx512_1/dcraw_half
+/usr/bin/haswell/avx512_1/half_mt
+/usr/bin/haswell/avx512_1/mem_image
+/usr/bin/haswell/avx512_1/multirender_test
+/usr/bin/haswell/avx512_1/postprocessing_benchmark
+/usr/bin/haswell/avx512_1/raw-identify
+/usr/bin/haswell/avx512_1/simple_dcraw
+/usr/bin/haswell/avx512_1/unprocessed_raw
 /usr/bin/haswell/dcraw_emu
 /usr/bin/haswell/dcraw_half
 /usr/bin/haswell/half_mt
@@ -145,6 +171,12 @@ popd
 
 %files lib
 %defattr(-,root,root,-)
+/usr/lib64/haswell/avx512_1/libraw.so
+/usr/lib64/haswell/avx512_1/libraw.so.16
+/usr/lib64/haswell/avx512_1/libraw.so.16.0.0
+/usr/lib64/haswell/avx512_1/libraw_r.so
+/usr/lib64/haswell/avx512_1/libraw_r.so.16
+/usr/lib64/haswell/avx512_1/libraw_r.so.16.0.0
 /usr/lib64/haswell/libraw.so.16
 /usr/lib64/haswell/libraw.so.16.0.0
 /usr/lib64/haswell/libraw_r.so.16
