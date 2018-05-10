@@ -4,7 +4,7 @@
 #
 Name     : LibRaw
 Version  : 0.18.11
-Release  : 9
+Release  : 10
 URL      : https://www.libraw.org/data/LibRaw-0.18.11.tar.gz
 Source0  : https://www.libraw.org/data/LibRaw-0.18.11.tar.gz
 Summary  : Raw image decoder library (non-thread-safe)
