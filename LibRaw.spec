@@ -4,19 +4,18 @@
 #
 Name     : LibRaw
 Version  : 0.19.0
-Release  : 13
+Release  : 14
 URL      : https://www.libraw.org/data/LibRaw-0.19.0.tar.gz
 Source0  : https://www.libraw.org/data/LibRaw-0.19.0.tar.gz
 Summary  : Raw image decoder library (thread-safe)
 Group    : Development/Tools
 License  : CDDL-1.1 LGPL-2.1
-Requires: LibRaw-bin
-Requires: LibRaw-lib
-Requires: LibRaw-license
+Requires: LibRaw-bin = %{version}-%{release}
+Requires: LibRaw-lib = %{version}-%{release}
+Requires: LibRaw-license = %{version}-%{release}
+BuildRequires : buildreq-qmake
 BuildRequires : libjpeg-turbo-dev
 BuildRequires : pkgconfig(lcms2)
-BuildRequires : qtbase-dev
-BuildRequires : qtbase-extras
 
 %description
 ======================   LibRaw ==============================
@@ -25,7 +24,7 @@ BuildRequires : qtbase-extras
 %package bin
 Summary: bin components for the LibRaw package.
 Group: Binaries
-Requires: LibRaw-license
+Requires: LibRaw-license = %{version}-%{release}
 
 %description bin
 bin components for the LibRaw package.
@@ -34,9 +33,9 @@ bin components for the LibRaw package.
 %package dev
 Summary: dev components for the LibRaw package.
 Group: Development
-Requires: LibRaw-lib
-Requires: LibRaw-bin
-Provides: LibRaw-devel
+Requires: LibRaw-lib = %{version}-%{release}
+Requires: LibRaw-bin = %{version}-%{release}
+Provides: LibRaw-devel = %{version}-%{release}
 
 %description dev
 dev components for the LibRaw package.
@@ -53,7 +52,7 @@ doc components for the LibRaw package.
 %package lib
 Summary: lib components for the LibRaw package.
 Group: Libraries
-Requires: LibRaw-license
+Requires: LibRaw-license = %{version}-%{release}
 
 %description lib
 lib components for the LibRaw package.
@@ -81,7 +80,7 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C
-export SOURCE_DATE_EPOCH=1530283201
+export SOURCE_DATE_EPOCH=1541615373
 %configure --disable-static
 make
 
@@ -90,7 +89,7 @@ pushd ../buildavx2/
 export CFLAGS="$CFLAGS -m64 -march=haswell"
 export CXXFLAGS="$CXXFLAGS -m64 -march=haswell"
 export LDFLAGS="$LDFLAGS -m64 -march=haswell"
-%configure --disable-static    --libdir=/usr/lib64/haswell
+%configure --disable-static
 make
 popd
 unset PKG_CONFIG_PATH
@@ -98,7 +97,7 @@ pushd ../buildavx512/
 export CFLAGS="$CFLAGS -m64 -march=skylake-avx512 -mprefer-vector-width=512"
 export CXXFLAGS="$CXXFLAGS -m64 -march=skylake-avx512 -mprefer-vector-width=512"
 export LDFLAGS="$LDFLAGS -m64 -march=skylake-avx512"
-%configure --disable-static    --libdir=/usr/lib64/haswell/avx512_1 --bindir=/usr/bin/haswell/avx512_1
+%configure --disable-static
 make
 popd
 %check
@@ -107,18 +106,23 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 make VERBOSE=1 V=1 check
+cd ../buildavx2;
+make VERBOSE=1 V=1 check || :
+cd ../buildavx512;
+make VERBOSE=1 V=1 check || :
 
 %install
-export SOURCE_DATE_EPOCH=1530283201
+export SOURCE_DATE_EPOCH=1541615373
 rm -rf %{buildroot}
-mkdir -p %{buildroot}/usr/share/doc/LibRaw
-cp LICENSE.LGPL %{buildroot}/usr/share/doc/LibRaw/LICENSE.LGPL
-cp LICENSE.CDDL %{buildroot}/usr/share/doc/LibRaw/LICENSE.CDDL
-pushd ../buildavx2/
-%make_install
-popd
+mkdir -p %{buildroot}/usr/share/package-licenses/LibRaw
+cp COPYRIGHT %{buildroot}/usr/share/package-licenses/LibRaw/COPYRIGHT
+cp LICENSE.CDDL %{buildroot}/usr/share/package-licenses/LibRaw/LICENSE.CDDL
+cp LICENSE.LGPL %{buildroot}/usr/share/package-licenses/LibRaw/LICENSE.LGPL
 pushd ../buildavx512/
-%make_install
+%make_install_avx512
+popd
+pushd ../buildavx2/
+%make_install_avx2
 popd
 %make_install
 
@@ -131,6 +135,7 @@ popd
 /usr/bin/dcraw_emu
 /usr/bin/dcraw_half
 /usr/bin/half_mt
+/usr/bin/haswell/4channels
 /usr/bin/haswell/avx512_1/4channels
 /usr/bin/haswell/avx512_1/dcraw_emu
 /usr/bin/haswell/avx512_1/dcraw_half
@@ -141,6 +146,15 @@ popd
 /usr/bin/haswell/avx512_1/raw-identify
 /usr/bin/haswell/avx512_1/simple_dcraw
 /usr/bin/haswell/avx512_1/unprocessed_raw
+/usr/bin/haswell/dcraw_emu
+/usr/bin/haswell/dcraw_half
+/usr/bin/haswell/half_mt
+/usr/bin/haswell/mem_image
+/usr/bin/haswell/multirender_test
+/usr/bin/haswell/postprocessing_benchmark
+/usr/bin/haswell/raw-identify
+/usr/bin/haswell/simple_dcraw
+/usr/bin/haswell/unprocessed_raw
 /usr/bin/mem_image
 /usr/bin/multirender_test
 /usr/bin/postprocessing_benchmark
@@ -157,6 +171,8 @@ popd
 /usr/include/libraw/libraw_internal.h
 /usr/include/libraw/libraw_types.h
 /usr/include/libraw/libraw_version.h
+/usr/lib64/haswell/avx512_1/libraw.so
+/usr/lib64/haswell/avx512_1/libraw_r.so
 /usr/lib64/haswell/libraw.so
 /usr/lib64/haswell/libraw_r.so
 /usr/lib64/libraw.so
@@ -166,14 +182,15 @@ popd
 
 %files doc
 %defattr(0644,root,root,0755)
+/usr/share/doc/libraw/COPYRIGHT
 /usr/share/doc/libraw/Changelog.txt
+/usr/share/doc/libraw/LICENSE.CDDL
+/usr/share/doc/libraw/LICENSE.LGPL
 
 %files lib
 %defattr(-,root,root,-)
-/usr/lib64/haswell/avx512_1/libraw.so
 /usr/lib64/haswell/avx512_1/libraw.so.19
 /usr/lib64/haswell/avx512_1/libraw.so.19.0.0
-/usr/lib64/haswell/avx512_1/libraw_r.so
 /usr/lib64/haswell/avx512_1/libraw_r.so.19
 /usr/lib64/haswell/avx512_1/libraw_r.so.19.0.0
 /usr/lib64/haswell/libraw.so.19
@@ -186,9 +203,7 @@ popd
 /usr/lib64/libraw_r.so.19.0.0
 
 %files license
-%defattr(-,root,root,-)
-/usr/share/doc/LibRaw/LICENSE.CDDL
-/usr/share/doc/LibRaw/LICENSE.LGPL
-/usr/share/doc/libraw/COPYRIGHT
-/usr/share/doc/libraw/LICENSE.CDDL
-/usr/share/doc/libraw/LICENSE.LGPL
+%defattr(0644,root,root,0755)
+/usr/share/package-licenses/LibRaw/COPYRIGHT
+/usr/share/package-licenses/LibRaw/LICENSE.CDDL
+/usr/share/package-licenses/LibRaw/LICENSE.LGPL
