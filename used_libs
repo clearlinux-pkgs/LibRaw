@@ -4,5 +4,6 @@ libgomp.so.1
 libjpeg.so.62
 liblcms2.so.2
 libm.so.6
+libmvec.so.1
 libstdc++.so.6
 libz.so.1

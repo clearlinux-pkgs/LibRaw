@@ -4,7 +4,7 @@
 #
 Name     : LibRaw
 Version  : 0.20.2
-Release  : 22
+Release  : 23
 URL      : https://www.libraw.org/data/LibRaw-0.20.2.tar.gz
 Source0  : https://www.libraw.org/data/LibRaw-0.20.2.tar.gz
 Summary  : Raw image decoder library (thread-safe)
@@ -84,12 +84,12 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1628698543
+export SOURCE_DATE_EPOCH=1628700625
 export GCC_IGNORE_WERROR=1
-export CFLAGS="$CFLAGS -fno-lto "
-export FCFLAGS="$FFLAGS -fno-lto "
-export FFLAGS="$FFLAGS -fno-lto "
-export CXXFLAGS="$CXXFLAGS -fno-lto "
+export CFLAGS="$CFLAGS -Ofast -falign-functions=32 -fno-lto -fno-semantic-interposition -mprefer-vector-width=256 "
+export FCFLAGS="$FFLAGS -Ofast -falign-functions=32 -fno-lto -fno-semantic-interposition -mprefer-vector-width=256 "
+export FFLAGS="$FFLAGS -Ofast -falign-functions=32 -fno-lto -fno-semantic-interposition -mprefer-vector-width=256 "
+export CXXFLAGS="$CXXFLAGS -Ofast -falign-functions=32 -fno-lto -fno-semantic-interposition -mprefer-vector-width=256 "
 %reconfigure --disable-static
 make  %{?_smp_mflags}
 unset PKG_CONFIG_PATH
@@ -125,7 +125,7 @@ cd ../buildavx512;
 make %{?_smp_mflags} check || :
 
 %install
-export SOURCE_DATE_EPOCH=1628698543
+export SOURCE_DATE_EPOCH=1628700625
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/share/package-licenses/LibRaw
 cp %{_builddir}/LibRaw-0.20.2/LICENSE.CDDL %{buildroot}/usr/share/package-licenses/LibRaw/c24b9c7ef03687bf0141f85a1b7ed81459944c3c
