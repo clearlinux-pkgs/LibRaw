@@ -4,13 +4,14 @@
 #
 Name     : LibRaw
 Version  : 0.20.2
-Release  : 23
+Release  : 24
 URL      : https://www.libraw.org/data/LibRaw-0.20.2.tar.gz
 Source0  : https://www.libraw.org/data/LibRaw-0.20.2.tar.gz
 Summary  : Raw image decoder library (thread-safe)
 Group    : Development/Tools
 License  : CDDL-1.0 LGPL-2.1
 Requires: LibRaw-bin = %{version}-%{release}
+Requires: LibRaw-filemap = %{version}-%{release}
 Requires: LibRaw-lib = %{version}-%{release}
 Requires: LibRaw-license = %{version}-%{release}
 BuildRequires : buildreq-qmake
@@ -27,6 +28,7 @@ LibRaw supports 'master' version of RawSpeed library: https://github.com/darktab
 Summary: bin components for the LibRaw package.
 Group: Binaries
 Requires: LibRaw-license = %{version}-%{release}
+Requires: LibRaw-filemap = %{version}-%{release}
 
 %description bin
 bin components for the LibRaw package.
@@ -52,10 +54,19 @@ Group: Documentation
 doc components for the LibRaw package.
 
 
+%package filemap
+Summary: filemap components for the LibRaw package.
+Group: Default
+
+%description filemap
+filemap components for the LibRaw package.
+
+
 %package lib
 Summary: lib components for the LibRaw package.
 Group: Libraries
 Requires: LibRaw-license = %{version}-%{release}
+Requires: LibRaw-filemap = %{version}-%{release}
 
 %description lib
 lib components for the LibRaw package.
@@ -84,7 +95,7 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1628700625
+export SOURCE_DATE_EPOCH=1633757329
 export GCC_IGNORE_WERROR=1
 export CFLAGS="$CFLAGS -Ofast -falign-functions=32 -fno-lto -fno-semantic-interposition -mprefer-vector-width=256 "
 export FCFLAGS="$FFLAGS -Ofast -falign-functions=32 -fno-lto -fno-semantic-interposition -mprefer-vector-width=256 "
@@ -94,21 +105,21 @@ export CXXFLAGS="$CXXFLAGS -Ofast -falign-functions=32 -fno-lto -fno-semantic-in
 make  %{?_smp_mflags}
 unset PKG_CONFIG_PATH
 pushd ../buildavx2/
-export CFLAGS="$CFLAGS -m64 -march=haswell"
-export CXXFLAGS="$CXXFLAGS -m64 -march=haswell"
-export FFLAGS="$FFLAGS -m64 -march=haswell"
-export FCFLAGS="$FCFLAGS -m64 -march=haswell"
-export LDFLAGS="$LDFLAGS -m64 -march=haswell"
+export CFLAGS="$CFLAGS -m64 -march=x86-64-v3"
+export CXXFLAGS="$CXXFLAGS -m64 -march=x86-64-v3"
+export FFLAGS="$FFLAGS -m64 -march=x86-64-v3"
+export FCFLAGS="$FCFLAGS -m64 -march=x86-64-v3"
+export LDFLAGS="$LDFLAGS -m64 -march=x86-64-v3"
 %reconfigure --disable-static
 make  %{?_smp_mflags}
 popd
 unset PKG_CONFIG_PATH
 pushd ../buildavx512/
-export CFLAGS="$CFLAGS -m64 -march=skylake-avx512 -mprefer-vector-width=256"
-export CXXFLAGS="$CXXFLAGS -m64 -march=skylake-avx512 -mprefer-vector-width=256"
-export FFLAGS="$FFLAGS -m64 -march=skylake-avx512 -mprefer-vector-width=256"
-export FCFLAGS="$FCFLAGS -m64 -march=skylake-avx512 -mprefer-vector-width=256"
-export LDFLAGS="$LDFLAGS -m64 -march=skylake-avx512"
+export CFLAGS="$CFLAGS -m64 -march=x86-64-v4 -mprefer-vector-width=256"
+export CXXFLAGS="$CXXFLAGS -m64 -march=x86-64-v4 -mprefer-vector-width=256"
+export FFLAGS="$FFLAGS -m64 -march=x86-64-v4 -mprefer-vector-width=256"
+export FCFLAGS="$FCFLAGS -m64 -march=x86-64-v4 -mprefer-vector-width=256"
+export LDFLAGS="$LDFLAGS -m64 -march=x86-64-v4"
 %reconfigure --disable-static
 make  %{?_smp_mflags}
 popd
@@ -125,16 +136,18 @@ cd ../buildavx512;
 make %{?_smp_mflags} check || :
 
 %install
-export SOURCE_DATE_EPOCH=1628700625
+export SOURCE_DATE_EPOCH=1633757329
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/share/package-licenses/LibRaw
 cp %{_builddir}/LibRaw-0.20.2/LICENSE.CDDL %{buildroot}/usr/share/package-licenses/LibRaw/c24b9c7ef03687bf0141f85a1b7ed81459944c3c
 cp %{_builddir}/LibRaw-0.20.2/LICENSE.LGPL %{buildroot}/usr/share/package-licenses/LibRaw/39a21f33cadea18adcc23bf808d7d5ea6419c8b1
-pushd ../buildavx512/
-%make_install_avx512
-popd
 pushd ../buildavx2/
-%make_install_avx2
+%make_install_v3
+/usr/bin/elf-move.py avx2 %{buildroot}-v3 %{buildroot}/usr/share/clear/optimized-elf/ %{buildroot}/usr/share/clear/filemap/filemap-%{name}
+popd
+pushd ../buildavx512/
+%make_install_v4
+/usr/bin/elf-move.py avx512 %{buildroot}-v4 %{buildroot}/usr/share/clear/optimized-elf/ %{buildroot}/usr/share/clear/filemap/filemap-%{name}
 popd
 %make_install
 
@@ -147,28 +160,6 @@ popd
 /usr/bin/dcraw_emu
 /usr/bin/dcraw_half
 /usr/bin/half_mt
-/usr/bin/haswell/4channels
-/usr/bin/haswell/avx512_1/4channels
-/usr/bin/haswell/avx512_1/dcraw_emu
-/usr/bin/haswell/avx512_1/dcraw_half
-/usr/bin/haswell/avx512_1/half_mt
-/usr/bin/haswell/avx512_1/mem_image
-/usr/bin/haswell/avx512_1/multirender_test
-/usr/bin/haswell/avx512_1/postprocessing_benchmark
-/usr/bin/haswell/avx512_1/raw-identify
-/usr/bin/haswell/avx512_1/rawtextdump
-/usr/bin/haswell/avx512_1/simple_dcraw
-/usr/bin/haswell/avx512_1/unprocessed_raw
-/usr/bin/haswell/dcraw_emu
-/usr/bin/haswell/dcraw_half
-/usr/bin/haswell/half_mt
-/usr/bin/haswell/mem_image
-/usr/bin/haswell/multirender_test
-/usr/bin/haswell/postprocessing_benchmark
-/usr/bin/haswell/raw-identify
-/usr/bin/haswell/rawtextdump
-/usr/bin/haswell/simple_dcraw
-/usr/bin/haswell/unprocessed_raw
 /usr/bin/mem_image
 /usr/bin/multirender_test
 /usr/bin/postprocessing_benchmark
@@ -176,6 +167,7 @@ popd
 /usr/bin/rawtextdump
 /usr/bin/simple_dcraw
 /usr/bin/unprocessed_raw
+/usr/share/clear/optimized-elf/bin*
 
 %files dev
 %defattr(-,root,root,-)
@@ -186,10 +178,6 @@ popd
 /usr/include/libraw/libraw_internal.h
 /usr/include/libraw/libraw_types.h
 /usr/include/libraw/libraw_version.h
-/usr/lib64/haswell/avx512_1/libraw.so
-/usr/lib64/haswell/avx512_1/libraw_r.so
-/usr/lib64/haswell/libraw.so
-/usr/lib64/haswell/libraw_r.so
 /usr/lib64/libraw.so
 /usr/lib64/libraw_r.so
 /usr/lib64/pkgconfig/libraw.pc
@@ -202,20 +190,17 @@ popd
 /usr/share/doc/libraw/LICENSE.CDDL
 /usr/share/doc/libraw/LICENSE.LGPL
 
+%files filemap
+%defattr(-,root,root,-)
+/usr/share/clear/filemap/filemap-LibRaw
+
 %files lib
 %defattr(-,root,root,-)
-/usr/lib64/haswell/avx512_1/libraw.so.20
-/usr/lib64/haswell/avx512_1/libraw.so.20.0.0
-/usr/lib64/haswell/avx512_1/libraw_r.so.20
-/usr/lib64/haswell/avx512_1/libraw_r.so.20.0.0
-/usr/lib64/haswell/libraw.so.20
-/usr/lib64/haswell/libraw.so.20.0.0
-/usr/lib64/haswell/libraw_r.so.20
-/usr/lib64/haswell/libraw_r.so.20.0.0
 /usr/lib64/libraw.so.20
 /usr/lib64/libraw.so.20.0.0
 /usr/lib64/libraw_r.so.20
 /usr/lib64/libraw_r.so.20.0.0
+/usr/share/clear/optimized-elf/lib*
 
 %files license
 %defattr(0644,root,root,0755)
