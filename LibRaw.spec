@@ -4,7 +4,7 @@
 #
 Name     : LibRaw
 Version  : 0.20.2
-Release  : 24
+Release  : 25
 URL      : https://www.libraw.org/data/LibRaw-0.20.2.tar.gz
 Source0  : https://www.libraw.org/data/LibRaw-0.20.2.tar.gz
 Summary  : Raw image decoder library (thread-safe)
