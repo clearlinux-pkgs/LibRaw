@@ -4,7 +4,7 @@
 #
 Name     : LibRaw
 Version  : 0.20.2
-Release  : 35
+Release  : 36
 URL      : https://www.libraw.org/data/LibRaw-0.20.2.tar.gz
 Source0  : https://www.libraw.org/data/LibRaw-0.20.2.tar.gz
 Summary  : Raw image decoder library (thread-safe)
@@ -95,12 +95,12 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1665094369
+export SOURCE_DATE_EPOCH=1667430138
 export GCC_IGNORE_WERROR=1
-export CFLAGS="$CFLAGS -Ofast -falign-functions=32 -fno-lto -fno-semantic-interposition -mprefer-vector-width=256 "
-export FCFLAGS="$FFLAGS -Ofast -falign-functions=32 -fno-lto -fno-semantic-interposition -mprefer-vector-width=256 "
-export FFLAGS="$FFLAGS -Ofast -falign-functions=32 -fno-lto -fno-semantic-interposition -mprefer-vector-width=256 "
-export CXXFLAGS="$CXXFLAGS -Ofast -falign-functions=32 -fno-lto -fno-semantic-interposition -mprefer-vector-width=256 "
+export CFLAGS="$CFLAGS -Ofast -falign-functions=32 -fno-lto -fno-semantic-interposition "
+export FCFLAGS="$FFLAGS -Ofast -falign-functions=32 -fno-lto -fno-semantic-interposition "
+export FFLAGS="$FFLAGS -Ofast -falign-functions=32 -fno-lto -fno-semantic-interposition "
+export CXXFLAGS="$CXXFLAGS -Ofast -falign-functions=32 -fno-lto -fno-semantic-interposition "
 %reconfigure --disable-static
 make  %{?_smp_mflags}
 unset PKG_CONFIG_PATH
@@ -115,9 +115,9 @@ make  %{?_smp_mflags}
 popd
 unset PKG_CONFIG_PATH
 pushd ../buildavx512/
-export CFLAGS="$CFLAGS -m64 -march=x86-64-v4 -mprefer-vector-width=256 -Wl,-z,x86-64-v4"
-export CXXFLAGS="$CXXFLAGS -m64 -march=x86-64-v4 -mprefer-vector-width=256 -Wl,-z,x86-64-v4"
-export FFLAGS="$FFLAGS -m64 -march=x86-64-v4 -mprefer-vector-width=256 -Wl,-z,x86-64-v4"
+export CFLAGS="$CFLAGS -m64 -march=x86-64-v4 -mprefer-vector-width=512 -Wl,-z,x86-64-v4 -mtune=sapphirerapids "
+export CXXFLAGS="$CXXFLAGS -m64 -march=x86-64-v4 -mprefer-vector-width=512 -Wl,-z,x86-64-v4 -mtune=sapphirerapids "
+export FFLAGS="$FFLAGS -m64 -march=x86-64-v4 -mprefer-vector-width=512 -Wl,-z,x86-64-v4"
 export FCFLAGS="$FCFLAGS -m64 -march=x86-64-v4 -mprefer-vector-width=256"
 export LDFLAGS="$LDFLAGS -m64 -march=x86-64-v4"
 %reconfigure --disable-static
@@ -136,11 +136,11 @@ cd ../buildavx512;
 make %{?_smp_mflags} check || :
 
 %install
-export SOURCE_DATE_EPOCH=1665094369
+export SOURCE_DATE_EPOCH=1667430138
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/share/package-licenses/LibRaw
-cp %{_builddir}/LibRaw-%{version}/LICENSE.CDDL %{buildroot}/usr/share/package-licenses/LibRaw/c24b9c7ef03687bf0141f85a1b7ed81459944c3c
-cp %{_builddir}/LibRaw-%{version}/LICENSE.LGPL %{buildroot}/usr/share/package-licenses/LibRaw/39a21f33cadea18adcc23bf808d7d5ea6419c8b1
+cp %{_builddir}/LibRaw-%{version}/LICENSE.CDDL %{buildroot}/usr/share/package-licenses/LibRaw/c24b9c7ef03687bf0141f85a1b7ed81459944c3c || :
+cp %{_builddir}/LibRaw-%{version}/LICENSE.LGPL %{buildroot}/usr/share/package-licenses/LibRaw/39a21f33cadea18adcc23bf808d7d5ea6419c8b1 || :
 pushd ../buildavx2/
 %make_install_v3
 popd
