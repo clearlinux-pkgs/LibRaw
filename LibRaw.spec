@@ -5,7 +5,7 @@
 #
 Name     : LibRaw
 Version  : 0.20.0
-Release  : 40
+Release  : 41
 URL      : https://www.libraw.org/data/LibRaw-0.20.0.tar.gz
 Source0  : https://www.libraw.org/data/LibRaw-0.20.0.tar.gz
 Summary  : Raw image decoder library (thread-safe)
@@ -85,7 +85,7 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1684339529
+export SOURCE_DATE_EPOCH=1685638142
 export GCC_IGNORE_WERROR=1
 export CFLAGS="$CFLAGS -Ofast -falign-functions=32 -fdebug-types-section -femit-struct-debug-baseonly -fno-lto -fno-semantic-interposition -g1 -gno-column-info -gno-variable-location-views -gz=zstd "
 export FCFLAGS="$FFLAGS -Ofast -falign-functions=32 -fdebug-types-section -femit-struct-debug-baseonly -fno-lto -fno-semantic-interposition -g1 -gno-column-info -gno-variable-location-views -gz=zstd "
@@ -126,7 +126,7 @@ cd ../buildavx512;
 make %{?_smp_mflags} check || :
 
 %install
-export SOURCE_DATE_EPOCH=1684339529
+export SOURCE_DATE_EPOCH=1685638142
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/share/package-licenses/LibRaw
 cp %{_builddir}/LibRaw-%{version}/LICENSE.CDDL %{buildroot}/usr/share/package-licenses/LibRaw/c24b9c7ef03687bf0141f85a1b7ed81459944c3c || :
@@ -182,10 +182,6 @@ popd
 
 %files dev
 %defattr(-,root,root,-)
-/V3/usr/lib64/libraw.so
-/V3/usr/lib64/libraw_r.so
-/V4/usr/lib64/libraw.so
-/V4/usr/lib64/libraw_r.so
 /usr/include/libraw/libraw.h
 /usr/include/libraw/libraw_alloc.h
 /usr/include/libraw/libraw_const.h
@@ -207,13 +203,9 @@ popd
 
 %files lib
 %defattr(-,root,root,-)
-/V3/usr/lib64/libraw.so.20
 /V3/usr/lib64/libraw.so.20.0.0
-/V3/usr/lib64/libraw_r.so.20
 /V3/usr/lib64/libraw_r.so.20.0.0
-/V4/usr/lib64/libraw.so.20
 /V4/usr/lib64/libraw.so.20.0.0
-/V4/usr/lib64/libraw_r.so.20
 /V4/usr/lib64/libraw_r.so.20.0.0
 /usr/lib64/libraw.so.20
 /usr/lib64/libraw.so.20.0.0
