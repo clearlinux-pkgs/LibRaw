@@ -5,7 +5,7 @@
 #
 Name     : LibRaw
 Version  : 0.21.1
-Release  : 43
+Release  : 44
 URL      : https://www.libraw.org/data/LibRaw-0.21.1.tar.gz
 Source0  : https://www.libraw.org/data/LibRaw-0.21.1.tar.gz
 Summary  : Raw image decoder library (thread-safe)
@@ -77,13 +77,19 @@ license components for the LibRaw package.
 %setup -q -n LibRaw-0.21.1
 cd %{_builddir}/LibRaw-0.21.1
 %patch -P 1 -p1
+pushd ..
+cp -a LibRaw-0.21.1 buildavx2
+popd
+pushd ..
+cp -a LibRaw-0.21.1 buildavx512
+popd
 
 %build
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1690828282
+export SOURCE_DATE_EPOCH=1690828736
 export GCC_IGNORE_WERROR=1
 export CFLAGS="$CFLAGS -Ofast -falign-functions=32 -fdebug-types-section -femit-struct-debug-baseonly -fno-lto -fno-semantic-interposition -g1 -gno-column-info -gno-variable-location-views -gz=zstd "
 export FCFLAGS="$FFLAGS -Ofast -falign-functions=32 -fdebug-types-section -femit-struct-debug-baseonly -fno-lto -fno-semantic-interposition -g1 -gno-column-info -gno-variable-location-views -gz=zstd "
@@ -91,6 +97,26 @@ export FFLAGS="$FFLAGS -Ofast -falign-functions=32 -fdebug-types-section -femit-
 export CXXFLAGS="$CXXFLAGS -Ofast -falign-functions=32 -fdebug-types-section -femit-struct-debug-baseonly -fno-lto -fno-semantic-interposition -g1 -gno-column-info -gno-variable-location-views -gz=zstd "
 %reconfigure --disable-static
 make  %{?_smp_mflags}
+unset PKG_CONFIG_PATH
+pushd ../buildavx2/
+export CFLAGS="$CFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3"
+export CXXFLAGS="$CXXFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3"
+export FFLAGS="$FFLAGS -m64 -march=x86-64-v3 -Wl,-z,x86-64-v3"
+export FCFLAGS="$FCFLAGS -m64 -march=x86-64-v3"
+export LDFLAGS="$LDFLAGS -m64 -march=x86-64-v3"
+%reconfigure --disable-static
+make  %{?_smp_mflags}
+popd
+unset PKG_CONFIG_PATH
+pushd ../buildavx512/
+export CFLAGS="$CFLAGS -m64 -march=x86-64-v4 -mprefer-vector-width=512 -Wl,-z,x86-64-v4 "
+export CXXFLAGS="$CXXFLAGS -m64 -march=x86-64-v4 -mprefer-vector-width=512 -Wl,-z,x86-64-v4 "
+export FFLAGS="$FFLAGS -m64 -march=x86-64-v4 -mprefer-vector-width=512 -Wl,-z,x86-64-v4"
+export FCFLAGS="$FCFLAGS -m64 -march=x86-64-v4 -mprefer-vector-width=256"
+export LDFLAGS="$LDFLAGS -m64 -march=x86-64-v4"
+%reconfigure --disable-static
+make  %{?_smp_mflags}
+popd
 
 %check
 export LANG=C.UTF-8
@@ -98,21 +124,55 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 make %{?_smp_mflags} check
+cd ../buildavx2;
+make %{?_smp_mflags} check || :
+cd ../buildavx512;
+make %{?_smp_mflags} check || :
 
 %install
-export SOURCE_DATE_EPOCH=1690828282
+export SOURCE_DATE_EPOCH=1690828736
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/share/package-licenses/LibRaw
 cp %{_builddir}/LibRaw-%{version}/COPYRIGHT %{buildroot}/usr/share/package-licenses/LibRaw/e86ca32ed57e181b74fd60bbb8301acf014a9a6c || :
 cp %{_builddir}/LibRaw-%{version}/LICENSE.CDDL %{buildroot}/usr/share/package-licenses/LibRaw/c24b9c7ef03687bf0141f85a1b7ed81459944c3c || :
 cp %{_builddir}/LibRaw-%{version}/LICENSE.LGPL %{buildroot}/usr/share/package-licenses/LibRaw/39a21f33cadea18adcc23bf808d7d5ea6419c8b1 || :
+pushd ../buildavx2/
+%make_install_v3
+popd
+pushd ../buildavx512/
+%make_install_v4
+popd
 %make_install
+/usr/bin/elf-move.py avx2 %{buildroot}-v3 %{buildroot} %{buildroot}/usr/share/clear/filemap/filemap-%{name}
+/usr/bin/elf-move.py avx512 %{buildroot}-v4 %{buildroot} %{buildroot}/usr/share/clear/filemap/filemap-%{name}
 
 %files
 %defattr(-,root,root,-)
 
 %files bin
 %defattr(-,root,root,-)
+/V3/usr/bin/4channels
+/V3/usr/bin/dcraw_emu
+/V3/usr/bin/dcraw_half
+/V3/usr/bin/half_mt
+/V3/usr/bin/mem_image
+/V3/usr/bin/multirender_test
+/V3/usr/bin/postprocessing_benchmark
+/V3/usr/bin/raw-identify
+/V3/usr/bin/rawtextdump
+/V3/usr/bin/simple_dcraw
+/V3/usr/bin/unprocessed_raw
+/V4/usr/bin/4channels
+/V4/usr/bin/dcraw_emu
+/V4/usr/bin/dcraw_half
+/V4/usr/bin/half_mt
+/V4/usr/bin/mem_image
+/V4/usr/bin/multirender_test
+/V4/usr/bin/postprocessing_benchmark
+/V4/usr/bin/raw-identify
+/V4/usr/bin/rawtextdump
+/V4/usr/bin/simple_dcraw
+/V4/usr/bin/unprocessed_raw
 /usr/bin/4channels
 /usr/bin/dcraw_emu
 /usr/bin/dcraw_half
@@ -148,6 +208,10 @@ cp %{_builddir}/LibRaw-%{version}/LICENSE.LGPL %{buildroot}/usr/share/package-li
 
 %files lib
 %defattr(-,root,root,-)
+/V3/usr/lib64/libraw.so.23.0.0
+/V3/usr/lib64/libraw_r.so.23.0.0
+/V4/usr/lib64/libraw.so.23.0.0
+/V4/usr/lib64/libraw_r.so.23.0.0
 /usr/lib64/libraw.so.23
 /usr/lib64/libraw.so.23.0.0
 /usr/lib64/libraw_r.so.23
